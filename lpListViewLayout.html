@@ -1,0 +1,181 @@
+﻿
+
+<div ng-controller="My.ListView.Layout.CustomListViewLayoutController" ng-class="-content">
+
+    <div class="custom-list-layout-header">
+
+        <div class="custom-list-layout-header__content pull-left">
+            <div class="custom-list-layout-header__section" ng-if="(listViewAllowedChildrenTypes && listViewAllowedChildrenTypes.length > 0 && !ifAnythingIsSelected()) && currentNodePermissions.canCreate">
+                <div class="btn-group" ng-show="listViewAllowedChildrenTypes.length > 1">
+                    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                        <localize key="actions_create">Create</localize>
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li ng-repeat="contentType in listViewAllowedChildrenTypes | orderBy:'name':false">
+                            <a href="#/{{entityType}}/{{entityType}}/edit/{{contentId}}?doctype={{contentType.alias}}&create=true">
+                                <i class="{{contentType.icon}}"></i>
+                                {{contentType.name}}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="btn-group" ng-show="listViewAllowedChildrenTypes.length === 1">
+                    <a class="btn" href="#/{{entityType}}/{{entityType}}/edit/{{contentId}}?doctype={{listViewAllowedChildrenTypes[0].alias}}&create=true">
+                        <i class="{{listViewAllowedChildrenTypes[0].icon}}"></i>
+                        <localize key="actions_create">Create</localize> {{ listViewAllowedChildrenTypes[0].name }}
+                    </a>
+                </div>
+            </div>
+
+            <div class="custom-list-layout-header__section" ng-if="ifAnythingIsSelected()">
+                <div class="btn"
+                     ng-click="clearSelection()"
+                     disabled="actionInProgress">
+                    Clear selection
+                </div>
+            </div>
+
+            <div class="custom-list-layout-header__section" ng-if="ifAnythingIsSelected()">
+                <strong ng-show="!actionInProgress">{{ selectedItemsCount() }} <localize key="general_of">of</localize> {{ listViewResultSet.items.length }} <localize key="general_selected">selected</localize></strong>
+                <strong ng-show="actionInProgress" ng-bind="bulkStatus"></strong>
+
+                <div class="umb-loader-wrapper -bottom" ng-show="actionInProgress">
+                    <div class="umb-loader"></div>
+                </div>
+            </div>
+        </div>
+        <div class="custom-list-layout-header__content pull-right">
+            <div class="custom-list-layout-header__section" ng-if="!ifAnythingIsSelected()">
+                <form class="form-search -no-margin-bottom pull-right" novalidate>
+                    <div class="inner-addon left-addon">
+                        <i class="icon icon-search" ng-click="enterCompleteSearch($event)"></i>
+                        <input class="form-control search-input"
+                               type="text"
+                               placeholder="Type to search..."
+                               ng-model="searchTerm"
+                               ng-change="enterCompleteSearch(searchTerm)"
+                               ng-keydown="forceKeySearch($event)"
+                               prevent-enter-submit
+                               no-dirty-check>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+        <div class="custom-list-layout-header__content pull-right" ng-if="ifAnythingIsSelected()">
+
+            <div ng-if="options.allowBulkPublish && (buttonPermissions == null || buttonPermissions.canPublish)">
+
+                <a href="" ng-click="publish()" class="btn-link custom-btn" disabled="actionInProgress">
+                    <i class="umb-button__icon icon-globe"></i>
+                    Publish
+                </a>
+
+            </div>
+            <div ng-if="options.allowBulkUnpublish && (buttonPermissions == null || buttonPermissions.canUnpublish)">
+
+                <a href="" ng-click="unpublish()" class="btn-link custom-btn" disabled="actionInProgress">
+                    <i class="umb-button__icon icon-block"></i>
+                    Unpublish
+                </a>
+
+            </div>
+            <div ng-if="options.allowBulkCopy && (buttonPermissions == null || buttonPermissions.canCopy)">
+                <a href="" ng-click="copy()" class="btn-link custom-btn" disabled="actionInProgress">
+                    <i class="umb-button__icon icon-documents"></i>
+                    Copy
+                </a>
+            </div>
+            <div ng-if="options.allowBulkMove && (buttonPermissions == null || buttonPermissions.canMove)">
+                <a href="" ng-click="move()" class="btn-link custom-btn" disabled="actionInProgress">
+                    <i class="umb-button__icon icon-enter"></i>
+                    Move
+                </a>
+            </div>
+            <div ng-if="options.allowBulkDelete && (buttonPermissions == null || buttonPermissions.canDelete)">
+                <a href="" ng-click="delete()" class="btn-link custom-btn" disabled="actionInProgress">
+                    <i class="umb-button__icon icon-trash"></i>
+                    Delete
+                </a>
+            </div>
+
+
+        </div>
+    </div>
+    <div class="umb-panel-body">
+        <div class="umb-pane">
+            <div class="umb-table">
+                <div class="umb-table-head">
+                    <div class="umb-table-row">
+                        <div class="umb-table-cell">
+                            <input type="checkbox" name="selectedAllItems[]" value="" ng-checked="areAllItemsSelected(blogItems)" ng-click="selectAllItems(blogItems)" />
+                        </div>
+                        <div class="umb-table-cell">
+                            <a href="#" prevent-default class="sortable" ng-click="order('name')">
+                                name
+                            </a>
+                            <i class="icon" ng-class="{'icon-navigation-up': isSortDirection('name', 'asc'), 'icon-navigation-down': isSortDirection('name', 'desc')}"></i>
+                        </div>
+                        <div class="umb-table-cell">
+                            <a href="#" prevent-default class="sortable" ng-click="order('updateDate')">last edited</a>
+                            <i class="icon" ng-class="{'icon-navigation-up': isSortDirection('updateDate', 'asc'), 'icon-navigation-down': isSortDirection('updateDate', 'desc')}"></i>
+                        </div>
+                        <div class="umb-table-cell">
+                            <a href="#" prevent-default class="sortable" ng-click="order('owner')">last editor</a>
+                            <i class="icon" ng-class="{'icon-navigation-up': isSortDirection('owner', 'asc'), 'icon-navigation-down': isSortDirection('owner', 'desc')}"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="umb-table-body">
+                    <div class="umb-table-row" ng-class="{'-unpublished':!isPublished(item)}" ng-repeat="item in filteredTodos" ng-click="toggleSelection(item.id)" data-name="{{item.name}}">
+                        <div class="umb-table-cell" ng-class="{'has-unpublished-version':!isPublished(item)}">
+                            <i class="umb-table-body__icon umb-table-body__fileicon" ng-class="getItemIcon(item)"></i>
+                            <input type="hidden" ng-checked="isRowSelected(item.id)" />
+                        </div>
+                        <div class="umb-table-cell umb-table__name">
+                            <a href="{{clickBlogItem(item)}}" title="{{item.name}}">{{item.name}}</a>
+                        </div>
+                        <div class="umb-table-cell">
+                            {{item.updateDate}}
+                        </div>
+                        <div class="umb-table-cell">{{item.owner}} </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <umb-load-indicator ng-show="!viewLoaded"></umb-load-indicator>
+
+            <div class="row center pagination-centered">
+                <umb-pagination ng-if="totalPages"
+                                page-number="options.pageNumber"
+                                total-pages="totalPages"
+                                on-next="next"
+                                on-prev="prev"
+                                on-go-to-page="goToPage">
+                </umb-pagination>
+
+
+            </div>
+
+            <umb-overlay ng-if="moveDialog.show"
+                         model="moveDialog"
+                         position="right"
+                         view="moveDialog.view">
+            </umb-overlay>
+
+            <umb-overlay ng-if="copyDialog.show"
+                         model="copyDialog"
+                         position="right"
+                         view="copyDialog.view">
+            </umb-overlay>
+
+            <umb-overlay ng-if="ysodOverlay.show"
+                         model="ysodOverlay"
+                         position="right"
+                         view="ysodOverlay.view">
+            </umb-overlay>
+        </div>
+    </div>
+</div>

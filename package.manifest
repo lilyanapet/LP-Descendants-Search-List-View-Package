@@ -1,0 +1,9 @@
+{
+    javascript: [
+        "~/App_Plugins/LPDescendantsSearchListViewLayout/lpListViewLayout.js"
+		
+    ],
+    css: [
+        "~/App_Plugins/LPDescendantsSearchListViewLayout/lpListViewLayout.css"
+    ]
+}
