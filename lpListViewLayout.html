@@ -1,4 +1,4 @@
-﻿
+
 
 <div ng-controller="My.ListView.Layout.CustomListViewLayoutController" ng-class="-content">
 
@@ -47,64 +47,79 @@
         </div>
         <div class="custom-list-layout-header__content pull-right">
             <div class="custom-list-layout-header__section" ng-if="!ifAnythingIsSelected()">
-                <form class="form-search -no-margin-bottom pull-right" novalidate>
-                    <div class="inner-addon left-addon">
-                        <i class="icon icon-search" ng-click="enterCompleteSearch($event)"></i>
-                        <input class="form-control search-input"
-                               type="text"
-                               placeholder="Type to search..."
-                               ng-model="searchTerm"
-                               ng-change="enterCompleteSearch(searchTerm)"
-                               ng-keydown="forceKeySearch($event)"
-                               prevent-enter-submit
-                               no-dirty-check>
+                <div class="umb-layout-selector pull-left" ng-show="showViewLayoutSelector" ng-if="!ifAnythingIsSelected()">
+                    <div class="umb-layout-selector__active-layout" ng-click="toggleViewLayoutDropdown()">
+                        <i class="{{ options.layout.activeLayout.icon }}"></i>
                     </div>
-                </form>
-            </div>
 
+                    <div ng-if="viewLayoutDropDownIsOpen" class="umb-layout-selector__dropdown shadow-depth-3 animated -half-second fadeIn" on-outside-click="closeLayoutDropdown()">
+                        <div ng-repeat="layout in viewLayouts | filter:{selected:true}" class="umb-layout-selector__dropdown-item" ng-click="pickViewLayout(layout)" ng-class="{'-active': layout.active }" ng-attr-title="{{layout.name}}">
+                            <i class="{{ layout.icon }} umb-layout-selector__dropdown-item-icon"></i>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+                <div class="custom-list-layout-header__section" ng-if="!ifAnythingIsSelected()">
+                    <form class="form-search -no-margin-bottom pull-right" novalidate>
+                        <div class="inner-addon left-addon">
+                            <i class="icon icon-search" ng-click="enterCompleteSearch($event)"></i>
+                            <input class="form-control search-input"
+                                   type="text"
+                                   placeholder="Type to search..."
+                                   ng-model="searchTerm"
+                                   ng-change="enterCompleteSearch(searchTerm)"
+                                   ng-keydown="forceKeySearch($event)"
+                                   prevent-enter-submit
+                                   no-dirty-check>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+            <div class="custom-list-layout-header__content pull-right" ng-if="ifAnythingIsSelected()">
+
+                <div ng-if="options.allowBulkPublish && (buttonPermissions == null || buttonPermissions.canPublish)">
+
+                    <a href="" ng-click="publish()" class="btn-link custom-btn" disabled="actionInProgress">
+                        <i class="umb-button__icon icon-globe"></i>
+                        Publish
+                    </a>
+
+                </div>
+                <div ng-if="options.allowBulkUnpublish && (buttonPermissions == null || buttonPermissions.canUnpublish)">
+
+                    <a href="" ng-click="unpublish()" class="btn-link custom-btn" disabled="actionInProgress">
+                        <i class="umb-button__icon icon-block"></i>
+                        Unpublish
+                    </a>
+
+                </div>
+                <div ng-if="options.allowBulkCopy && (buttonPermissions == null || buttonPermissions.canCopy)">
+                    <a href="" ng-click="copy()" class="btn-link custom-btn" disabled="actionInProgress">
+                        <i class="umb-button__icon icon-documents"></i>
+                        Copy
+                    </a>
+                </div>
+                <div ng-if="options.allowBulkMove && (buttonPermissions == null || buttonPermissions.canMove)">
+                    <a href="" ng-click="move()" class="btn-link custom-btn" disabled="actionInProgress">
+                        <i class="umb-button__icon icon-enter"></i>
+                        Move
+                    </a>
+                </div>
+                <div ng-if="options.allowBulkDelete && (buttonPermissions == null || buttonPermissions.canDelete)">
+                    <a href="" ng-click="delete()" class="btn-link custom-btn" disabled="actionInProgress">
+                        <i class="umb-button__icon icon-trash"></i>
+                        Delete
+                    </a>
+                </div>
+
+
+            </div>
         </div>
-        <div class="custom-list-layout-header__content pull-right" ng-if="ifAnythingIsSelected()">
-
-            <div ng-if="options.allowBulkPublish && (buttonPermissions == null || buttonPermissions.canPublish)">
-
-                <a href="" ng-click="publish()" class="btn-link custom-btn" disabled="actionInProgress">
-                    <i class="umb-button__icon icon-globe"></i>
-                    Publish
-                </a>
-
-            </div>
-            <div ng-if="options.allowBulkUnpublish && (buttonPermissions == null || buttonPermissions.canUnpublish)">
-
-                <a href="" ng-click="unpublish()" class="btn-link custom-btn" disabled="actionInProgress">
-                    <i class="umb-button__icon icon-block"></i>
-                    Unpublish
-                </a>
-
-            </div>
-            <div ng-if="options.allowBulkCopy && (buttonPermissions == null || buttonPermissions.canCopy)">
-                <a href="" ng-click="copy()" class="btn-link custom-btn" disabled="actionInProgress">
-                    <i class="umb-button__icon icon-documents"></i>
-                    Copy
-                </a>
-            </div>
-            <div ng-if="options.allowBulkMove && (buttonPermissions == null || buttonPermissions.canMove)">
-                <a href="" ng-click="move()" class="btn-link custom-btn" disabled="actionInProgress">
-                    <i class="umb-button__icon icon-enter"></i>
-                    Move
-                </a>
-            </div>
-            <div ng-if="options.allowBulkDelete && (buttonPermissions == null || buttonPermissions.canDelete)">
-                <a href="" ng-click="delete()" class="btn-link custom-btn" disabled="actionInProgress">
-                    <i class="umb-button__icon icon-trash"></i>
-                    Delete
-                </a>
-            </div>
-
-
-        </div>
-    </div>
     <div class="umb-panel-body">
         <div class="umb-pane">
+
             <div class="umb-table">
                 <div class="umb-table-head">
                     <div class="umb-table-row">
@@ -113,16 +128,22 @@
                         </div>
                         <div class="umb-table-cell">
                             <a href="#" prevent-default class="sortable" ng-click="order('name')">
-                                name
+                                Name
                             </a>
                             <i class="icon" ng-class="{'icon-navigation-up': isSortDirection('name', 'asc'), 'icon-navigation-down': isSortDirection('name', 'desc')}"></i>
                         </div>
                         <div class="umb-table-cell">
-                            <a href="#" prevent-default class="sortable" ng-click="order('updateDate')">last edited</a>
+                            <a href="#" prevent-default class="sortable" ng-click="order('sortOrder')">
+                                Sort Order
+                            </a>
+                            <i class="icon" ng-class="{'icon-navigation-up': isSortDirection('sortOrder', 'asc'), 'icon-navigation-down': isSortDirection('sortOrder', 'desc')}"></i>
+                        </div>
+                        <div class="umb-table-cell">
+                            <a href="#" prevent-default class="sortable" ng-click="order('updateDate')">Last Edited</a>
                             <i class="icon" ng-class="{'icon-navigation-up': isSortDirection('updateDate', 'asc'), 'icon-navigation-down': isSortDirection('updateDate', 'desc')}"></i>
                         </div>
                         <div class="umb-table-cell">
-                            <a href="#" prevent-default class="sortable" ng-click="order('owner')">last editor</a>
+                            <a href="#" prevent-default class="sortable" ng-click="order('owner')">Last Editor</a>
                             <i class="icon" ng-class="{'icon-navigation-up': isSortDirection('owner', 'asc'), 'icon-navigation-down': isSortDirection('owner', 'desc')}"></i>
                         </div>
                     </div>
@@ -134,7 +155,10 @@
                             <input type="hidden" ng-checked="isRowSelected(item.id)" />
                         </div>
                         <div class="umb-table-cell umb-table__name">
-                            <a href="{{clickBlogItem(item)}}" title="{{item.name}}">{{item.name}}</a>
+                            <a href="#" ng-click="clickBlogItem(item)" title="{{item.name}}">{{item.name}}</a>
+                        </div>
+                        <div class="umb-table-cell">
+                            {{item.sortOrder}}
                         </div>
                         <div class="umb-table-cell">
                             {{item.updateDate}}
