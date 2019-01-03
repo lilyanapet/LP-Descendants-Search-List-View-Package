@@ -41,6 +41,7 @@ namespace App_Plugins.LPDescendantsSearchListViewLayout.Application.Controllers
                 owner = i.GetCreatorProfile().Name,
                 updateDate = i.UpdateDate.ToString(),
                 parentId = i.ParentId.ToString(),
+                sortOrder = i.SortOrder,
                 icon = Services.ContentTypeService.GetContentType(i.ContentType.Id).Icon,
                 isPublished = (i.Published ? 1 : 0).ToString()
             }));
