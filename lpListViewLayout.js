@@ -1,4 +1,4 @@
-﻿angular.module('umbraco').controller('My.ListView.Layout.CustomListViewLayoutController', function ($scope, $routeParams, $location, $filter, $injector, appState, $timeout, editorState, treeService, listViewHelper, localizationService, navigationService, notificationsService, $http) {
+angular.module('umbraco').controller('My.ListView.Layout.CustomListViewLayoutController', function ($scope, $routeParams, $location, $filter, $injector, appState, $timeout, editorState, treeService, listViewHelper, localizationService, navigationService, notificationsService, $http) {
     $scope.selectedIds = [];
 
     $scope.currentPage = 1;
@@ -48,7 +48,7 @@
             $scope.totalPages = Math.ceil(response.data.length / $scope.options.pageSize);
 
             var begin = (($scope.options.pageNumber - 1) * $scope.options.pageSize)
-                , end = begin + $scope.options.pageSize;
+                , end = begin + parseInt($scope.options.pageSize);
 
             $scope.order = function (predicate) {
                 listViewHelper.setSorting(predicate, true, $scope.options);
@@ -61,7 +61,55 @@
 
         });
     }
+    $scope.showViewLayoutSelector = $scope.options.layout.layouts.length > 0 ? true : false;
+    $scope.viewLayoutDropDownIsOpen = false;
+    $scope.viewLayouts = $scope.options.layout.layouts;
+    $scope.closeLayoutDropdown = function () {
+        $scope.viewLayoutDropDownIsOpen = false;
+    };
+   
+    function setActiveLayout(layouts) {
+        for (var i = 0; layouts.length > i; i++) {
+            var layout = layouts[i];
+            if (layout.path === $scope.options.layout.activeLayout.path) {
+                layout.active = true;
+            }
+        }
+
+        var divToRemove = document.querySelector(".umb-editor-sub-header");
+        var divToRemove2 = document.querySelector(".flex");
+        if ($scope.options.layout.activeLayout.isSystem === undefined) {
+
+            if (divToRemove !== 'undefined') {
+                divToRemove.style.display = "none";
+            }
+
+            if (divToRemove2 !== 'undefined') {
+                divToRemove2.style.display = "none";
+            }
+        }
+        if (parseInt($scope.options.layout.activeLayout.isSystem) === 1) {
+            if (divToRemove !== 'undefined') {
+                divToRemove.style.display = "flex";
+            }
+
+            if (divToRemove2 !== 'undefined') {
+                divToRemove2.style.display = "flex";
+            }
+        }
+    }
+
+    $scope.pickViewLayout = function (layout) {
+        $scope.options.layout.activeLayout = layout;
+
+        $scope.viewLayoutDropDownIsOpen = false;
+        setActiveLayout($scope.options.layout.layouts);
+    };
+    $scope.toggleViewLayoutDropdown = function () {
+        $scope.viewLayoutDropDownIsOpen = !$scope.viewLayoutDropDownIsOpen;
+    };
     
+
     $scope.isSortDirection = function (col, direction) {
         return listViewHelper.setSortingDirection(col, direction, $scope.options);
     };
@@ -69,6 +117,7 @@
         $scope.selectedIds = [];
     };
     
+
     $scope.areAllItemsSelected = function (blogItems) {
         if ($scope.selectedIds !== 'undefined') {
             if ($scope.selectedIds.length === 0) {
@@ -404,6 +453,8 @@
     $scope.reloadCustomView = function () {
         $scope.clearSelection();
         fetchData();
+
+        setActiveLayout($scope.options.layout.layouts);
         //NOTE: This might occur if we are requesting a higher page number than what is actually available, for example
         // if you have more than one page and you delete all items on the last page. In this case, we need to reset to the last
         // available page and then re-load again
@@ -481,18 +532,8 @@
         $scope.options.bulkActionsAllowed = $scope.options.allowBulkPublish || $scope.options.allowBulkUnpublish || $scope.options.allowBulkCopy || $scope.options.allowBulkMove || $scope.options.allowBulkDelete;
 
         $scope.reloadCustomView();
-        
-            var divToRemove = document.querySelector(".umb-editor-sub-header");
-            if (divToRemove !== 'undefined') {
-                divToRemove.remove();
-            }
-
-            var divToRemove2 = document.querySelector(".flex");
-            if (divToRemove2 !== 'undefined') {
-                divToRemove2.remove();
-            }
-        
     }
     initializeView();
 
+   
 });
