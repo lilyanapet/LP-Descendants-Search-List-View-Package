@@ -14,5 +14,6 @@ namespace App_Plugins.LPDescendantsSearchListViewLayout.Application.Models
         public string parentId { get; set; }
         public string icon { get; set; }
         public string isPublished { get; set; }
+        public int sortOrder { get; set; }
     }
 }
